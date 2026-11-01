@@ -23,8 +23,8 @@ class UpdateChecker(private val context: Context) {
 
     companion object {
         private const val GITHUB_API =
-            "https://api.github.com/repos/1Finn2me/Novery/releases/latest"
-        private const val GITHUB_REPO = "https://github.com/1Finn2me/Novery"
+            "https://api.github.com/repos/McFoster1/Yomichi/releases/latest"
+        private const val GITHUB_REPO = "https://github.com/McFoster1/Yomichi"
     }
 
     /**

@@ -11,17 +11,32 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.emptycastle.novery"
+        applicationId = "app.yomichi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.2"
+        versionCode = 3
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("yomichi") {
+            val ksPath = System.getenv("KEYSTORE_PATH")
+            if (ksPath != null && file(ksPath).exists()) {
+                storeFile = file(ksPath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (System.getenv("KEYSTORE_PATH") != null) {
+                signingConfig = signingConfigs.getByName("yomichi")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

@@ -173,7 +173,7 @@ fun AboutScreen(
                     // GitHub Source
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(
-                            onClick = { openUrl("https://github.com/1Finn2me/Novery") },
+                            onClick = { openUrl("https://github.com/McFoster1/Yomichi") },
                             modifier = Modifier.size(48.dp)
                         ) {
                             Surface(
@@ -203,7 +203,7 @@ fun AboutScreen(
                     // GitHub Releases
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(
-                            onClick = { openUrl("https://github.com/1Finn2me/Novery/releases") },
+                            onClick = { openUrl("https://github.com/McFoster1/Yomichi/releases") },
                             modifier = Modifier.size(48.dp)
                         ) {
                             Surface(

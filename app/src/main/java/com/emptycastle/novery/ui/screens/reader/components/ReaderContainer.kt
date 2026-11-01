@@ -259,6 +259,9 @@ fun ReaderContainer(
                         items = uiState.displayItems,
                         key = { _, item -> item.itemId }
                     ) { index, item ->
+                        // Selection is scoped per item. Wrapping the whole LazyColumn in one
+                        // SelectionContainer crashes when a selection spans items that scroll off-screen.
+                        ItemSelectionWrapper(enabled = settings.longPressSelection) {
                         when (item) {
                             is ReaderDisplayItem.ChapterHeader -> {
                                 ChapterHeaderItem(
@@ -429,17 +432,12 @@ fun ReaderContainer(
                                 )
                             }
                         }
+                        }
                     }
                 }
             }
 
-            if (settings.longPressSelection) {
-                SelectionContainer {
-                    content()
-                }
-            } else {
-                content()
-            }
+            content()
 
             fullScreenImageUrl?.let { url ->
                 ImageViewerDialog(
@@ -482,5 +480,17 @@ private fun mapFontWeight(readerFontWeight: com.emptycastle.novery.domain.model.
         com.emptycastle.novery.domain.model.FontWeight.BOLD -> FontWeight.Bold
         com.emptycastle.novery.domain.model.FontWeight.EXTRA_BOLD -> FontWeight.ExtraBold
         com.emptycastle.novery.domain.model.FontWeight.BLACK -> FontWeight.Black
+    }
+}
+
+@Composable
+private fun ItemSelectionWrapper(
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) {
+    if (enabled) {
+        SelectionContainer { content() }
+    } else {
+        content()
     }
 }
