@@ -143,7 +143,7 @@ class FreeWebNovelProvider : MainProvider() {
         val href = titleElement.attrOrNull("href") ?: return null
         val novelUrl = fixUrl(deSlash(href)) ?: return null
 
-        val imgElement = element.selectFirst("div.pic > a > img")
+        val imgElement = element.selectFirst("div.pic img")
         val posterUrl = fixPosterUrl(imgElement)
 
         return Novel(
@@ -188,28 +188,28 @@ class FreeWebNovelProvider : MainProvider() {
     // ================================================================
 
     override suspend fun search(query: String): List<Novel> {
-        val url = "$mainUrl/search/"
-
-        val response = post(
-            url = url,
-            headers = mapOf(
-                "Referer" to mainUrl,
-                "X-Requested-With" to "XMLHttpRequest",
-                "Content-Type" to "application/x-www-form-urlencoded"
-            ),
-            data = mapOf("searchkey" to query)
+        // The site's search form posts a field called "keyword" to /search.
+        val postResponse = post(
+            url = "$mainUrl/search",
+            headers = mapOf("Referer" to mainUrl),
+            data = mapOf("keyword" to query)
         )
+        val postDocument = postResponse.document
 
-        val document = response.document
-
-        if (document.title().contains("Cloudflare", ignoreCase = true)) {
+        if (postDocument.title().contains("Cloudflare", ignoreCase = true)) {
             throw Exception("Cloudflare is blocking requests. Try again later.")
         }
 
-        val elements = document.select("div.li-row")
-        return elements.mapNotNull { element ->
-            parseNovelElement(element)
+        var novels = postDocument.select("div.li-row").mapNotNull { parseNovelElement(it) }
+
+        // Fallback: the same search as a plain GET link
+        if (novels.isEmpty()) {
+            val encoded = java.net.URLEncoder.encode(query, "UTF-8")
+            val getDocument = get("$mainUrl/search?keyword=$encoded").document
+            novels = getDocument.select("div.li-row").mapNotNull { parseNovelElement(it) }
         }
+
+        return novels
     }
 
     // ================================================================
@@ -263,7 +263,7 @@ class FreeWebNovelProvider : MainProvider() {
 
     private fun extractMetadata(document: Document): NovelMetadata {
         // Get poster
-        val posterUrl = document.selectFirst("div.pic > img")?.let { imgElement ->
+        val posterUrl = document.selectFirst("div.pic img")?.let { imgElement ->
             fixPosterUrl(imgElement)
         }
 
@@ -325,14 +325,11 @@ class FreeWebNovelProvider : MainProvider() {
     // ================================================================
 
     private suspend fun loadChapters(document: Document, novelPath: String): List<Chapter> {
-        // Try AJAX endpoint first
+        val htmlChapters = loadChaptersFromHtml(document)
         val ajaxChapters = tryLoadChaptersViaAjax(document)
-        if (ajaxChapters.isNotEmpty()) {
-            return ajaxChapters
-        }
 
-        // Fallback to HTML parsing
-        return loadChaptersFromHtml(document)
+        // Use whichever source found more chapters
+        return if (ajaxChapters.size >= htmlChapters.size) ajaxChapters else htmlChapters
     }
 
     /**
@@ -393,34 +390,49 @@ class FreeWebNovelProvider : MainProvider() {
     }
 
     /**
-     * Fallback: parse chapters from HTML
+     * Parse chapters from the novel page.
+     *
+     * The page lists only 40 chapters at a time (the rest are paged by JavaScript),
+     * but chapter URLs are numbered (/chapter-N). So we read the highest chapter
+     * number from the links on the page and fill in every chapter up to it.
      */
     private fun loadChaptersFromHtml(document: Document): List<Chapter> {
-        val chapters = mutableListOf<Chapter>()
-        val chapterElements = document.select("ul#idData li, ul.chapter-list li")
+        val numberRegex = Regex("/chapter-(\\d+)")
+        val known = sortedMapOf<Int, Chapter>()
+        var base: String? = null
 
-        var chapterNumber = 0
-        for (element in chapterElements) {
-            chapterNumber++
-            val linkElement = element.selectFirst("a") ?: continue
-            val href = linkElement.attrOrNull("href") ?: continue
+        fun addLink(link: Element, preferTitle: Boolean) {
+            val href = link.attrOrNull("href") ?: return
+            val number = numberRegex.find(href)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: return
+            val url = fixUrl(deSlash(href)) ?: return
+            if (base == null) base = url.substringBeforeLast("/chapter-")
+            if (known.containsKey(number)) return
 
-            val chapterUrl = fixUrl(deSlash(href)) ?: continue
+            val text = link.textOrNull()?.trim()
+            val title = link.attrOrNull("title")?.trim()
+            val name = (if (preferTitle) title ?: text else text ?: title)
+                ?.takeIf { it.isNotBlank() && !it.startsWith("Read ", ignoreCase = true) }
+                ?: "Chapter $number"
 
-            val chapterName = linkElement.attrOrNull("title")
-                ?: linkElement.textOrNull()?.trim()
-                ?: "Chapter $chapterNumber"
-
-            chapters.add(
-                Chapter(
-                    name = chapterName,
-                    url = chapterUrl,
-                    dateOfRelease = null
-                )
-            )
+            known[number] = Chapter(name = name, url = url, dateOfRelease = null)
         }
 
-        return chapters
+        // 1) The main chapter list
+        document.select("ul#idData li a, ul.chapter-list li a").forEach { addLink(it, preferTitle = true) }
+        // 2) Any other chapter links (for example the "latest chapters" box)
+        document.select("a[href*=/chapter-]").forEach { addLink(it, preferTitle = false) }
+
+        val novelBase = base ?: return emptyList()
+        val highest = known.lastKey()
+
+        // Fill gaps (chapters the page doesn't list) with generic names
+        return (1..highest).map { number ->
+            known[number] ?: Chapter(
+                name = "Chapter $number",
+                url = "$novelBase/chapter-$number",
+                dateOfRelease = null
+            )
+        }
     }
 
     // ================================================================
@@ -448,6 +460,9 @@ class FreeWebNovelProvider : MainProvider() {
         document.select("div.txt > .notice-text").remove()
 
         val contentElement = document.selectFirst("div.txt") ?: return null
+
+        // The chapter text starts with its own title heading, which the reader already shows
+        contentElement.selectFirst("#article > h4:first-child")?.remove()
 
         // Remove ads and unwanted elements
         contentElement.select(

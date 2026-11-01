@@ -1073,6 +1073,44 @@ class NovelFireProvider : MainProvider() {
     override suspend fun loadChapterContent(url: String): String? {
         val fullUrl = if (url.startsWith("http")) url else "$mainUrl/$url"
 
+        // The site now serves chapters from /novel/<slug>/chapter-N (also on novelphoenix.com),
+        // while chapter links built here use /book/<slug>/chapter-N. Try the likely variants.
+        var lastError: Exception? = null
+        for (candidate in chapterUrlCandidates(fullUrl)) {
+            try {
+                val html = fetchChapterContent(candidate)
+                if (!html.isNullOrBlank()) return html
+            } catch (e: Exception) {
+                lastError = e
+            }
+        }
+        lastError?.let { throw it }
+        return null
+    }
+
+    private fun chapterUrlCandidates(url: String): List<String> {
+        val result = LinkedHashSet<String>()
+        result.add(url)
+
+        val match = Regex("^https?://(?:www\\.)?([^/]+)/(book|novel)/(.+)$").find(url)
+            ?: return result.toList()
+        val host = match.groupValues[1]
+        val kind = match.groupValues[2]
+        val rest = match.groupValues[3]
+
+        val otherKind = if (kind == "book") "novel" else "book"
+        result.add("https://$host/$otherKind/$rest")
+
+        for (otherHost in listOf("novelfire.net", "novelphoenix.com")) {
+            if (otherHost != host) {
+                result.add("https://$otherHost/novel/$rest")
+                result.add("https://$otherHost/book/$rest")
+            }
+        }
+        return result.toList()
+    }
+
+    private suspend fun fetchChapterContent(fullUrl: String): String? {
         val response = get(fullUrl)
         val document = response.document
 
@@ -1097,6 +1135,8 @@ class NovelFireProvider : MainProvider() {
                     ".ads-holder, .ads-middle, [id*='ads'], [class*='ads'], " +
                     ".hidden, [style*='display:none'], [style*='display: none']"
         ).remove()
+
+        if (contentElement.text().isBlank() && contentElement.select("img").isEmpty()) return null
 
         val rawHtml = contentElement.html()
         return cleanChapterHtml(rawHtml)

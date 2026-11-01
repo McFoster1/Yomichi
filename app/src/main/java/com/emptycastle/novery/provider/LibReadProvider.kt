@@ -423,6 +423,10 @@ class LibReadProvider : MainProvider() {
             chapters = loadChaptersFromHtml(document, trimmedUrl)
         }
 
+        // The page and the API may only give some chapters (the page shows 40 at a time),
+        // so fill in the rest from the highest chapter number.
+        chapters = fillMissingChapters(chapters, document, trimmedUrl)
+
         // Extract all metadata
         val metadata = extractMetadata(document)
 
@@ -576,6 +580,61 @@ class LibReadProvider : MainProvider() {
         }
 
         return chapters
+    }
+
+    /**
+     * Chapter URLs look like .../chapter-01, .../chapter-010, .../chapter-03232
+     * (a leading "0" before the number). Read the highest number seen on the page
+     * and fill in every chapter up to it, copying the same URL pattern.
+     */
+    private fun fillMissingChapters(
+        chapters: List<Chapter>,
+        document: Document,
+        baseUrl: String
+    ): List<Chapter> {
+        val urlRegex = Regex("/chapter-(\\d+)/?$")
+        val known = sortedMapOf<Int, Chapter>()
+        var pad = ""
+        var padLearned = false
+        var base: String? = null
+
+        fun learn(name: String?, url: String) {
+            val digits = urlRegex.find(url)?.groupValues?.getOrNull(1) ?: return
+            val number = digits.toIntOrNull() ?: return
+            if (base == null) base = url.substringBeforeLast("/chapter-")
+            if (!padLearned && digits.endsWith(number.toString())) {
+                pad = digits.dropLast(number.toString().length)
+                padLearned = true
+            }
+            if (!known.containsKey(number)) {
+                val cleanName = name?.trim()
+                    ?.takeIf { it.isNotBlank() && !it.startsWith("Read ", ignoreCase = true) }
+                known[number] = Chapter(name = cleanName ?: "Chapter $number", url = url)
+            }
+        }
+
+        chapters.forEach { learn(it.name, it.url) }
+
+        document.select("a[href*=/chapter-]").forEach { link ->
+            val href = link.attrOrNull("href") ?: return@forEach
+            val absolute = when {
+                href.startsWith("http") -> href
+                href.startsWith("/") -> "$mainUrl$href"
+                else -> "${baseUrl.removeSuffix(".html")}/$href"
+            }
+            learn(link.textOrNull(), absolute)
+        }
+
+        val novelBase = base ?: return chapters
+        val highest = known.lastKey()
+        if (highest <= known.size && known.size == chapters.size) return chapters
+
+        return (1..highest).map { number ->
+            known[number] ?: Chapter(
+                name = "Chapter $number",
+                url = "$novelBase/chapter-$pad$number"
+            )
+        }
     }
 
     /**
