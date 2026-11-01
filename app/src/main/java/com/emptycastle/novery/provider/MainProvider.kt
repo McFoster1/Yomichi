@@ -162,6 +162,12 @@ abstract class MainProvider {
             }
         }
 
+        fun unregister(name: String) {
+            if (providers.removeAll { it.name == name }) {
+                providersFlow.value = providers.toList()
+            }
+        }
+
         fun getProviders(): List<MainProvider> = providers.toList()
 
         fun getProvider(name: String): MainProvider? {

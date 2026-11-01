@@ -1461,16 +1461,32 @@ private fun getContrastColor(color: Color): Color {
 // PROVIDER MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════════════
 
+private fun mergeProviderOrder(saved: List<String>, all: List<String>): List<String> {
+    if (saved.isEmpty()) return all
+    return saved.filter { it in all } + all.filter { it !in saved }
+}
+
 @Composable
 private fun ProviderCard(
     settings: AppSettings,
     onOrderChange: (List<String>) -> Unit,
     onEnabledChange: (String, Boolean) -> Unit
 ) {
-    val allProviders = remember { com.emptycastle.novery.provider.MainProvider.getProviders() }
-    var order by remember(settings.providerOrder) {
-        mutableStateOf(settings.providerOrder.ifEmpty { allProviders.map { it.name } })
+    val context = androidx.compose.ui.platform.LocalContext.current.applicationContext
+    val allProviders by com.emptycastle.novery.provider.MainProvider.providersState()
+        .collectAsStateWithLifecycle()
+    val allNames = allProviders.map { it.name }
+    val customProviders = allProviders
+        .filterIsInstance<com.emptycastle.novery.provider.CustomProvider>()
+    val customNames = customProviders.map { it.name }.toSet()
+
+    var order by remember(settings.providerOrder, allNames) {
+        mutableStateOf(mergeProviderOrder(settings.providerOrder, allNames))
     }
+    var showDialog by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<com.emptycastle.novery.provider.CustomProviderConfig?>(null) }
+    var deleting by remember { mutableStateOf<String?>(null) }
+
     val haptics = LocalHapticFeedback.current
     val listState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(listState) { from, to ->
@@ -1480,7 +1496,7 @@ private fun ProviderCard(
 
     LaunchedEffect(reorderState.isAnyItemDragging) {
         if (!reorderState.isAnyItemDragging) {
-            val current = settings.providerOrder.ifEmpty { allProviders.map { it.name } }
+            val current = mergeProviderOrder(settings.providerOrder, allNames)
             if (order != current) onOrderChange(order)
         }
     }
@@ -1503,6 +1519,7 @@ private fun ProviderCard(
         ) {
             itemsIndexed(order, key = { _, item -> item }) { _, name ->
                 ReorderableItem(reorderState, key = name) { isDragging ->
+                    val isCustom = name in customNames
                     ProviderItem(
                         name = name,
                         enabled = name !in settings.disabledProviders,
@@ -1512,11 +1529,69 @@ private fun ProviderCard(
                             onDragStarted = {
                                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             }
-                        )
+                        ),
+                        onEdit = if (isCustom) {
+                            {
+                                editing = customProviders.firstOrNull { it.name == name }?.config
+                                showDialog = editing != null
+                            }
+                        } else null,
+                        onDelete = if (isCustom) {
+                            { deleting = name }
+                        } else null
                     )
                 }
             }
         }
+
+        Spacer(Modifier.height(12.dp))
+        AddProviderButton {
+            editing = null
+            showDialog = true
+        }
+    }
+
+    if (showDialog) {
+        val old = editing
+        CustomProviderDialog(
+            initial = old,
+            takenNames = allNames.toSet() - setOfNotNull(old?.name),
+            onDismiss = {
+                showDialog = false
+                editing = null
+            },
+            onSave = { config ->
+                com.emptycastle.novery.provider.CustomProviderStore.upsert(context, old?.name, config)
+                if (old != null) {
+                    com.emptycastle.novery.provider.MainProvider.unregister(old.name)
+                }
+                com.emptycastle.novery.provider.MainProvider.register(
+                    com.emptycastle.novery.provider.CustomProvider(config)
+                )
+                if (old != null && old.name != config.name) {
+                    val wasDisabled = old.name in settings.disabledProviders
+                    onOrderChange(order.map { if (it == old.name) config.name else it })
+                    onEnabledChange(old.name, true)
+                    if (wasDisabled) onEnabledChange(config.name, false)
+                }
+                showDialog = false
+                editing = null
+            }
+        )
+    }
+
+    deleting?.let { toDelete ->
+        DeleteProviderDialog(
+            name = toDelete,
+            onConfirm = {
+                com.emptycastle.novery.provider.CustomProviderStore.delete(context, toDelete)
+                com.emptycastle.novery.provider.MainProvider.unregister(toDelete)
+                onEnabledChange(toDelete, true)
+                onOrderChange(order.filter { it != toDelete })
+                deleting = null
+            },
+            onDismiss = { deleting = null }
+        )
     }
 }
 
@@ -1526,7 +1601,9 @@ private fun ProviderItem(
     enabled: Boolean,
     isDragging: Boolean,
     onEnabledChange: (Boolean) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    onEdit: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null
 ) {
     val elevation by animateDpAsState(
         if (isDragging) 8.dp else 0.dp,
@@ -1583,6 +1660,9 @@ private fun ProviderItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            if (onEdit != null && onDelete != null) {
+                CustomProviderActions(onEdit = onEdit, onDelete = onDelete)
+            }
             Switch(enabled, onEnabledChange)
         }
     }

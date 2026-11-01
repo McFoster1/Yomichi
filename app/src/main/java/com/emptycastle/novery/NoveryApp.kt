@@ -78,5 +78,10 @@ class NoveryApp : Application() {
         MainProvider.register(FreeWebNovelProvider())
         MainProvider.register(AllNovelProvider())
         //MainProvider.register(EmpireNovelProvider())
+
+        // User-defined providers (Settings > Providers > Add provider)
+        com.emptycastle.novery.provider.CustomProviderStore.loadAll(this).forEach {
+            MainProvider.register(com.emptycastle.novery.provider.CustomProvider(it))
+        }
     }
 }
