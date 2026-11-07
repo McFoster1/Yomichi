@@ -2837,7 +2837,7 @@ private fun EnhancedOpenInAppButton(
 
             Column {
                 Text(
-                    text = "Open in Novery",
+                    text = "Open in Yomichi",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = Color.White

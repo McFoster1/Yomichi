@@ -335,6 +335,9 @@ fun NoveryTheme(
         }
     }
 
+    // Keep the shared accent color in sync with the active theme
+    SideEffect { YomichiAccent.primary = colorScheme.primary }
+
     // Provide dimensions based on density
     ProvideDimensions(density = appSettings.uiDensity) {
         MaterialTheme(

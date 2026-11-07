@@ -11,7 +11,7 @@ data class EpubMetadata(
     val description: String? = null,
     val coverUrl: String? = null,
     val language: String = "en",
-    val publisher: String = "Novery",
+    val publisher: String = "Yomichi",
     val tags: List<String> = emptyList(),
     val uuid: String = UUID.randomUUID().toString(),
     val creationDate: String = java.time.LocalDate.now().toString()

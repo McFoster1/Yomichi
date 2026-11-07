@@ -1,5 +1,6 @@
 package com.emptycastle.novery.ui.components
 
+import com.emptycastle.novery.ui.theme.YomichiAccent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -105,9 +106,9 @@ private object BarTheme {
     val surfaceVariant = Color(0xFF1C1C1F)
     val surfaceElevated = Color(0xFF232328)
 
-    val primary = Color(0xFFFF6B35)
-    val primaryMuted = Color(0xFFFF6B35).copy(alpha = 0.15f)
-    val primarySubtle = Color(0xFFFF6B35).copy(alpha = 0.08f)
+    val primary: Color get() = YomichiAccent.primary
+    val primaryMuted: Color get() = YomichiAccent.primary.copy(alpha = 0.15f)
+    val primarySubtle: Color get() = YomichiAccent.primary.copy(alpha = 0.08f)
 
     val textPrimary = Color(0xFFFAFAFA)
     val textSecondary = Color(0xFFA1A1AA)

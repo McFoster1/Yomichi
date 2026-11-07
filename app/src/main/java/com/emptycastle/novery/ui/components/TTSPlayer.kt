@@ -1,5 +1,6 @@
 package com.emptycastle.novery.ui.components
 
+import com.emptycastle.novery.ui.theme.YomichiAccent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -81,8 +82,8 @@ private object PlayerColors {
     val surface = Color(0xFF18181B)
     val surfaceVariant = Color(0xFF27272A)
 
-    val accent = Color(0xFFFF6B35)
-    val accentGlow = Color(0xFFFF6B35).copy(alpha = 0.2f)
+    val accent: Color get() = YomichiAccent.primary
+    val accentGlow: Color get() = YomichiAccent.primary.copy(alpha = 0.2f)
 
     val iconPrimary = Color(0xFFFAFAFA)
     val iconSecondary = Color(0xFFA1A1AA)
@@ -92,7 +93,7 @@ private object PlayerColors {
     val textMuted = Color(0xFF71717A)
 
     val progressTrack = Color(0xFF3F3F46)
-    val progressActive = Color(0xFFFF6B35)
+    val progressActive: Color get() = YomichiAccent.primary
 }
 
 private object PlayerSizes {

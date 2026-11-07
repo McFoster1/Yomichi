@@ -1,5 +1,6 @@
 package com.emptycastle.novery.ui.components
 
+import com.emptycastle.novery.ui.theme.YomichiAccent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -58,8 +59,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.emptycastle.novery.domain.model.Chapter
-import com.emptycastle.novery.ui.theme.Orange400
-import com.emptycastle.novery.ui.theme.Orange500
 import com.emptycastle.novery.ui.theme.Zinc300
 import com.emptycastle.novery.ui.theme.Zinc400
 import com.emptycastle.novery.ui.theme.Zinc500
@@ -310,11 +309,11 @@ private fun ChapterSearchBar(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Orange500,
+            focusedBorderColor = YomichiAccent.primary,
             unfocusedBorderColor = Zinc700,
             focusedContainerColor = Zinc800,
             unfocusedContainerColor = Zinc800,
-            cursorColor = Orange500
+            cursorColor = YomichiAccent.primary
         ),
         singleLine = true
     )
@@ -330,7 +329,7 @@ private fun ChapterListItem(
 ) {
     val backgroundColor by animateColorAsState(
         targetValue = when {
-            isCurrentChapter -> Orange500.copy(alpha = 0.15f)
+            isCurrentChapter -> YomichiAccent.primary.copy(alpha = 0.15f)
             else -> Color.Transparent
         },
         label = "chapterBg"
@@ -352,7 +351,7 @@ private fun ChapterListItem(
         // Chapter number badge
         Surface(
             shape = RoundedCornerShape(6.dp),
-            color = if (isCurrentChapter) Orange500 else Zinc800
+            color = if (isCurrentChapter) YomichiAccent.primary else Zinc800
         ) {
             Text(
                 text = chapterNumber.toString(),
@@ -371,7 +370,7 @@ private fun ChapterListItem(
                 text = chapter.name,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = if (isCurrentChapter) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (isCurrentChapter) Orange400 else Color.White,
+                color = if (isCurrentChapter) YomichiAccent.primaryLight else Color.White,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.alpha(textAlpha)
@@ -387,7 +386,7 @@ private fun ChapterListItem(
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Read",
-                    tint = if (isCurrentChapter) Orange400 else Zinc600,
+                    tint = if (isCurrentChapter) YomichiAccent.primaryLight else Zinc600,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -395,7 +394,7 @@ private fun ChapterListItem(
             if (isCurrentChapter) {
                 Surface(
                     shape = CircleShape,
-                    color = Orange500
+                    color = YomichiAccent.primary
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,

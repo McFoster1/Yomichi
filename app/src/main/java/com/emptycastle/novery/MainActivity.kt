@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
                 AppLoadState.isLoading.set(false) // Exit system splash
 
                 // Show custom splash for a bit, then transition
-                delay(2000) // Show custom splash for 2 seconds
+                delay(1000) // Show the branded splash for 1 second
                 showCustomSplash = false
             }
 
@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
                                 AlertDialog(
                                     onDismissRequest = { showNotificationDialog = false },
                                     title = { Text(text = "Enable notifications") },
-                                    text = { Text(text = "Novery uses notifications to show playback controls and timers. Please allow notifications to enable these features.") },
+                                    text = { Text(text = "Yomichi uses notifications to show playback controls and timers. Please allow notifications to enable these features.") },
                                     confirmButton = {
                                         TextButton(onClick = {
                                             requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)

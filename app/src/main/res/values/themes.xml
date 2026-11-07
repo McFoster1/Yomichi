@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Novery" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Novery" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Black in dark mode, white in light mode: avoids a white flash while the app draws -->
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
     <style name="Theme.Novery.Splash" parent="Theme.SplashScreen">
-        <!-- App logo shown during system splash -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_monochrome</item>
-        <!-- Background color behind the logo while splash is visible -->
-        <item name="windowSplashScreenBackground">@color/white</item>
-        <!-- Also set windowBackground to avoid flicker on some devices -->
-        <item name="android:windowBackground">@color/white</item>
-        <!-- Make the entry animation slightly more visible -->
-        <item name="windowSplashScreenAnimationDuration">700</item>
+        <!-- Yomichi icon shown on the system splash (white ring in dark mode, black in light mode) -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        <!-- Black in dark mode, white in light mode (see values-night/colors_splash.xml) -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowBackground">@color/splash_background</item>
         <!-- Theme to switch to after splash exit -->
         <item name="postSplashScreenTheme">@style/Theme.Novery</item>
     </style>

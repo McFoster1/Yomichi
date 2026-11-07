@@ -1,5 +1,6 @@
 package com.emptycastle.novery.ui.components
 
+import com.emptycastle.novery.ui.theme.YomichiAccent
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
@@ -72,8 +73,6 @@ import com.emptycastle.novery.tts.VoiceGender
 import com.emptycastle.novery.tts.VoiceInfo
 import com.emptycastle.novery.tts.VoiceManager
 import com.emptycastle.novery.tts.VoiceQuality
-import com.emptycastle.novery.ui.theme.Orange400
-import com.emptycastle.novery.ui.theme.Orange500
 import com.emptycastle.novery.ui.theme.Zinc300
 import com.emptycastle.novery.ui.theme.Zinc400
 import com.emptycastle.novery.ui.theme.Zinc500
@@ -219,11 +218,11 @@ fun VoiceSelector(
                 .padding(bottom = 12.dp),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange500,
+                focusedBorderColor = YomichiAccent.primary,
                 unfocusedBorderColor = Zinc700,
                 focusedContainerColor = Zinc800,
                 unfocusedContainerColor = Zinc800,
-                cursorColor = Orange500
+                cursorColor = YomichiAccent.primary
             ),
             singleLine = true
         )
@@ -244,7 +243,7 @@ fun VoiceSelector(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = Orange500)
+                    CircularProgressIndicator(color = YomichiAccent.primary)
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Loading voices...",
@@ -325,7 +324,7 @@ private fun LanguageGroupItem(
     val hasSelectedVoice = group.voices.any { it.id == selectedVoiceId }
 
     val backgroundColor by animateColorAsState(
-        targetValue = if (hasSelectedVoice) Orange500.copy(alpha = 0.1f) else Zinc800,
+        targetValue = if (hasSelectedVoice) YomichiAccent.primary.copy(alpha = 0.1f) else Zinc800,
         label = "groupBg"
     )
 
@@ -360,7 +359,7 @@ private fun LanguageGroupItem(
                         text = group.displayName,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (hasSelectedVoice) Orange400 else Color.White
+                        color = if (hasSelectedVoice) YomichiAccent.primaryLight else Color.White
                     )
                     Text(
                         text = "${group.voiceCount} voice${if (group.voiceCount != 1) "s" else ""}",
@@ -426,7 +425,7 @@ private fun VoiceListItem(
     onPreview: () -> Unit
 ) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) Orange500.copy(alpha = 0.15f) else Color.Transparent,
+        targetValue = if (isSelected) YomichiAccent.primary.copy(alpha = 0.15f) else Color.Transparent,
         label = "voiceBg"
     )
 
@@ -442,7 +441,7 @@ private fun VoiceListItem(
             modifier = Modifier
                 .size(24.dp)
                 .clip(CircleShape)
-                .background(if (isSelected) Orange500 else Zinc700)
+                .background(if (isSelected) YomichiAccent.primary else Zinc700)
                 .then(
                     if (isSelected) Modifier else Modifier.border(1.dp, Zinc600, CircleShape)
                 ),
@@ -466,7 +465,7 @@ private fun VoiceListItem(
                     text = voice.shortName,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isSelected) Orange400 else Color.White,
+                    color = if (isSelected) YomichiAccent.primaryLight else Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -501,7 +500,7 @@ private fun VoiceListItem(
             Icon(
                 imageVector = if (isPreviewPlaying) Icons.Default.Stop else Icons.Default.PlayArrow,
                 contentDescription = if (isPreviewPlaying) "Stop preview" else "Preview voice",
-                tint = if (isPreviewPlaying) Orange500 else Zinc400
+                tint = if (isPreviewPlaying) YomichiAccent.primary else Zinc400
             )
         }
     }
@@ -510,7 +509,7 @@ private fun VoiceListItem(
 @Composable
 private fun QualityBadge(quality: VoiceQuality) {
     val (color, text) = when (quality) {
-        VoiceQuality.PREMIUM -> Orange500 to "Premium"
+        VoiceQuality.PREMIUM -> YomichiAccent.primary to "Premium"
         VoiceQuality.HIGH -> Color(0xFF4CAF50) to "HD"
         VoiceQuality.NORMAL -> Zinc500 to "Standard"
         VoiceQuality.LOW -> Zinc600 to "Basic"
@@ -588,7 +587,7 @@ fun CompactVoiceSelector(
             Icon(
                 imageVector = Icons.Default.RecordVoiceOver,
                 contentDescription = null,
-                tint = if (enabled) Orange500 else Zinc500,
+                tint = if (enabled) YomichiAccent.primary else Zinc500,
                 modifier = Modifier.size(24.dp)
             )
 

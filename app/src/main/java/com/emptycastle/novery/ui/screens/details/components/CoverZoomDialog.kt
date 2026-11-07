@@ -155,7 +155,7 @@ fun CoverZoomDialog(
                     val result = saveImageToGallery(context, bitmap, title)
                     isSaving = false
                     snackbarHostState.showSnackbar(
-                        if (result) "Image saved to Pictures/Novery" else "Failed to save image"
+                        if (result) "Image saved to Pictures/Yomichi" else "Failed to save image"
                     )
                 }
             }
@@ -249,7 +249,7 @@ fun CoverZoomDialog(
             val result = saveImageToGallery(context, bitmap, title)
             isSaving = false
             snackbarHostState.showSnackbar(
-                if (result) "Image saved to Pictures/Novery" else "Failed to save image"
+                if (result) "Image saved to Pictures/Yomichi" else "Failed to save image"
             )
         }
     }
@@ -830,7 +830,7 @@ private fun saveImageModern(context: Context, bitmap: Bitmap, filename: String):
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/Novery")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/Yomichi")
     }
 
     var uri: Uri? = null
@@ -874,7 +874,7 @@ private fun saveImageLegacy(context: Context, bitmap: Bitmap, filename: String):
         val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         Log.d(TAG, "Pictures directory: ${imagesDir.absolutePath}, exists: ${imagesDir.exists()}, canWrite: ${imagesDir.canWrite()}")
 
-        val appDir = File(imagesDir, "Novery")
+        val appDir = File(imagesDir, "Yomichi")
         Log.d(TAG, "App directory: ${appDir.absolutePath}, exists: ${appDir.exists()}")
 
         if (!appDir.exists()) {

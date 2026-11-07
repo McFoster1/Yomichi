@@ -118,6 +118,12 @@ fun AboutScreen(
                 )
             }
 
+            // ═══════════════ CRASH LOG ═══════════════
+
+            item(key = "crash_log") {
+                CrashLogCard()
+            }
+
             // ═══════════════ DISCLAIMER ═══════════════
 
             item(key = "disclaimer_header") {
@@ -143,7 +149,8 @@ fun AboutScreen(
                     // Website
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(
-                            onClick = { openUrl("https://noveryapp.netlify.app/") },
+                            onClick = { },
+                            enabled = false,
                             modifier = Modifier.size(48.dp)
                         ) {
                             Surface(
@@ -153,7 +160,7 @@ fun AboutScreen(
                             ) {
                                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                                     Icon(
-                                        painter = painterResource(R.drawable.ic_launcher_icon_transparent),
+                                        painter = painterResource(R.drawable.ic_yomichi_char),
                                         contentDescription = "Website",
                                         tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.size(22.dp)
@@ -173,7 +180,8 @@ fun AboutScreen(
                     // GitHub Source
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(
-                            onClick = { openUrl("https://github.com/McFoster1/Yomichi") },
+                            onClick = { },
+                            enabled = false,
                             modifier = Modifier.size(48.dp)
                         ) {
                             Surface(
@@ -203,7 +211,8 @@ fun AboutScreen(
                     // GitHub Releases
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         IconButton(
-                            onClick = { openUrl("https://github.com/McFoster1/Yomichi/releases") },
+                            onClick = { },
+                            enabled = false,
                             modifier = Modifier.size(48.dp)
                         ) {
                             Surface(
@@ -262,8 +271,11 @@ private fun AppHeaderCard(currentVersion: String) {
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        painter = painterResource(id = R.drawable.ic_yomichi_mark),
                         contentDescription = "App logo",
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                            MaterialTheme.colorScheme.primary
+                        ),
                         modifier = Modifier.size(56.dp),
                         contentScale = ContentScale.Fit
                     )
@@ -271,7 +283,7 @@ private fun AppHeaderCard(currentVersion: String) {
             }
 
             Text(
-                text = "Novery",
+                text = "Yomichi",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -287,6 +299,13 @@ private fun AppHeaderCard(currentVersion: String) {
                 text = "A modern novel reader for Android",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = "A fork of Novery by 1Finn2me",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center
             )
         }
@@ -621,7 +640,7 @@ private fun DisclaimerCard() {
             }
 
             Text(
-                text = "Novery does not host, store, or distribute any content. " +
+                text = "Yomichi does not host, store, or distribute any content. " +
                         "The app functions as a search engine and aggregator — it crawls " +
                         "and displays content from third-party websites that are publicly " +
                         "accessible through any standard web browser.\n\n" +
@@ -629,7 +648,10 @@ private fun DisclaimerCard() {
                         "respective website operators. This application is intended for " +
                         "personal and educational use only.\n\n" +
                         "Users are solely responsible for ensuring their use of the app " +
-                        "complies with all applicable laws. Use Novery at your own risk.",
+                        "complies with all applicable laws. Use Yomichi at your own risk.\n\n" +
+                        "Yomichi is a fork of Novery by 1Finn2me and is released under the " +
+                        "GNU General Public License v3.0. The original copyright notices are " +
+                        "kept, and the changes made in this fork are recorded in its commit history.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = MaterialTheme.typography.bodySmall.lineHeight

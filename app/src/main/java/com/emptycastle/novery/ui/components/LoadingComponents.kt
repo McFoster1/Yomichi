@@ -1,5 +1,7 @@
 package com.emptycastle.novery.ui.components
 
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.LinearEasing
@@ -64,44 +66,39 @@ import com.emptycastle.novery.ui.theme.Error
 
 @Composable
 fun SplashScreen(visible: Boolean = true) {
+    // Black splash in dark mode, white splash in light mode
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val backgroundColor = if (isDark) Color.Black else Color.White
+    val foregroundColor = if (isDark) Color.White else Color.Black
+    val mutedColor = if (isDark) Color(0xFFA1A1AA) else Color(0xFF52525B)
+
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(600)),
-        exit = fadeOut(animationSpec = tween(600))
+        enter = fadeIn(animationSpec = tween(300)),
+        exit = fadeOut(animationSpec = tween(400))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(backgroundColor),
             contentAlignment = Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_icon_transparent),
-                    contentDescription = "Novery Logo",
-                    modifier = Modifier.size(192.dp)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "Novery",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    letterSpacing = 1.sp
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_yomichi_mark),
+                contentDescription = "Yomichi logo",
+                colorFilter = ColorFilter.tint(foregroundColor),
+                modifier = Modifier.size(160.dp)
+            )
 
             Text(
-                text = "v1.0.2",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = "BY MCFOSTER",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+                color = mutedColor,
+                letterSpacing = 4.sp,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp)
+                    .padding(bottom = 48.dp)
             )
         }
     }

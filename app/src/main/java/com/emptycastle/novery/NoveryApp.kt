@@ -32,6 +32,9 @@ class NoveryApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // Record crashes so they can be copied from the About screen
+        com.emptycastle.novery.util.CrashLogger.install(this)
+
         CloudflareManager.init(this)
 
         // Initialize repository provider (only once!)

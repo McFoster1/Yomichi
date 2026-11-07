@@ -177,7 +177,7 @@ fun MoreTab(
         item(key = "about_menu") {
             MoreMenuItem(
                 icon = Icons.Rounded.Info,
-                title = "About Novery",
+                title = "About Yomichi",
                 subtitle = "Version info, updates, and credits",
                 iconTint = Color(0xFF3B82F6),
                 onClick = onNavigateToAbout,

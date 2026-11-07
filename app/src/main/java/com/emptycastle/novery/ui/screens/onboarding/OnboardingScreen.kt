@@ -198,7 +198,7 @@ private fun WelcomeStep(
         Spacer(modifier = Modifier.height(40.dp))
 
         Text(
-            text = "Welcome to Novery",
+            text = "Welcome to Yomichi",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center

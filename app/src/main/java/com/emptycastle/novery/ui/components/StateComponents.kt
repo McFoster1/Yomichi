@@ -1,5 +1,6 @@
 package com.emptycastle.novery.ui.components
 
+import com.emptycastle.novery.ui.theme.YomichiAccent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -120,7 +121,7 @@ fun EmptyState(
             Button(
                 onClick = onAction,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Orange600
+                    containerColor = YomichiAccent.primary
                 )
             ) {
                 Text(actionLabel)

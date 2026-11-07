@@ -1,5 +1,6 @@
 package com.emptycastle.novery.ui.components
 
+import com.emptycastle.novery.ui.theme.YomichiAccent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
@@ -12,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.emptycastle.novery.ui.theme.Orange500
 import com.emptycastle.novery.ui.theme.Zinc900
 
 /**
@@ -50,7 +50,7 @@ fun NoveryPullToRefreshBox(
                 isRefreshing = isRefreshing,
                 modifier = Modifier.align(Alignment.TopCenter),
                 containerColor = Zinc900,
-                color = Orange500
+                color = YomichiAccent.primary
             )
         },
         content = content
@@ -72,7 +72,7 @@ fun RefreshIndicator(
         ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(24.dp),
-                color = Orange500,
+                color = YomichiAccent.primary,
                 strokeWidth = 2.dp
             )
         }
