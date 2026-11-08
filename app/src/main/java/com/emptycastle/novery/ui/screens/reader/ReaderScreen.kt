@@ -957,7 +957,6 @@ private fun ControlsOverlay(
     onToggleTTSSettings: () -> Unit
 ) {
     val animationDuration = if (uiState.settings.reduceMotion) 0 else ReaderDefaults.ControlsAnimationDuration
-    val copyContext = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Top Bar
@@ -983,21 +982,7 @@ private fun ControlsOverlay(
                 progressStyle = if (uiState.settings.showProgress) uiState.settings.progressStyle else ProgressStyle.NONE,
                 largerTouchTargets = uiState.settings.largerTouchTargets,
                 onBack = onBack,
-                onBookmarkClick = onToggleBookmark,
-                onCopyChapterClick = {
-                    val chapterText = uiState.displayItems
-                        .filterIsInstance<com.emptycastle.novery.ui.screens.reader.model.ReaderDisplayItem.Segment>()
-                        .filter { it.chapterIndex == uiState.currentChapterIndex }
-                        .joinToString("\n\n") { it.segment.text }
-                    if (chapterText.isNotBlank()) {
-                        val clipboard = copyContext.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
-                            as android.content.ClipboardManager
-                        clipboard.setPrimaryClip(
-                            android.content.ClipData.newPlainText(uiState.currentChapterName, chapterText)
-                        )
-                        Toast.makeText(copyContext, "Chapter copied", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                onBookmarkClick = onToggleBookmark
             )
         }
 

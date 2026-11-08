@@ -494,7 +494,7 @@ fun SettingsScreen(
             item { SectionHeader("About", Icons.Outlined.Info) }
             item {
                 SettingsCard {
-                    InfoItem(Icons.Outlined.Apartment, "Version", "1.0.0")
+                    InfoItem(Icons.Outlined.Apartment, "Version", rememberAppVersionName())
                     SettingsDivider()
                     ClickableItem(
                         icon = Icons.Outlined.RestartAlt,
@@ -1799,4 +1799,16 @@ private fun ResetConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit
         dismissButton = { TextButton(onDismiss) { Text("Cancel") } },
         shape = RoundedCornerShape(20.dp)
     )
+}
+
+@Composable
+private fun rememberAppVersionName(): String {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    return remember {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: ""
+        } catch (e: Exception) {
+            ""
+        }
+    }
 }

@@ -117,7 +117,7 @@ class BackupManager(
     fun generateBackupFileName(): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd_HHmm", Locale.getDefault())
         val date = dateFormat.format(Date())
-        return "novery_backup_$date.${BackupData.FILE_EXTENSION}"
+        return "yomichi_backup_$date.${BackupData.FILE_EXTENSION}"
     }
 
     // ================================================================

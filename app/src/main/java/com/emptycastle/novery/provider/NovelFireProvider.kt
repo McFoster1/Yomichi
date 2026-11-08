@@ -10,6 +10,9 @@ import com.emptycastle.novery.domain.model.UserReview
 import com.emptycastle.novery.util.HtmlUtils
 import com.emptycastle.novery.util.RatingUtils
 import com.emptycastle.novery.util.toRelativeTime
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -916,7 +919,7 @@ class NovelFireProvider : MainProvider() {
 
                 chapters.add(
                     Chapter(
-                        name = chapterName,
+                        name = normalizeChapterName(chapterName, nSort),
                         url = chapterUrl,
                         dateOfRelease = createdAt
                     )
@@ -936,57 +939,94 @@ class NovelFireProvider : MainProvider() {
         }
     }
 
+    private fun chapterNumberOf(url: String): Int? {
+        return Regex("chapter-(\\d+)").find(url)?.groupValues?.getOrNull(1)?.toIntOrNull()
+    }
+
     /**
-     * FIXED: Smart chapter loading - only makes 2 requests instead of 50!
-     * Uses QuickNovel's approach: check last page, extract total chapter count, generate all chapters.
+     * Shows chapter names as "Chapter N: Title".
+     * The site gives titles like "Chapter 1 - 1: Nightmare Begins".
+     */
+    private fun normalizeChapterName(raw: String, number: Int?): String {
+        val name = raw.trim()
+
+        Regex("^Chapter\\s+(\\d+)\\s*[-\u2013\u2014]\\s*\\d+\\s*[:.]?\\s*(.*)$", RegexOption.IGNORE_CASE)
+            .find(name)?.let { m ->
+                val title = m.groupValues[2].trim()
+                return if (title.isNotEmpty()) "Chapter ${m.groupValues[1]}: $title" else "Chapter ${m.groupValues[1]}"
+            }
+
+        Regex("^Chapter\\s+(\\d+)\\s*[-\u2013\u2014]\\s*(.+)$", RegexOption.IGNORE_CASE)
+            .find(name)?.let { m ->
+                return "Chapter ${m.groupValues[1]}: ${m.groupValues[2].trim()}"
+            }
+
+        if (number != null && name.isNotEmpty() && !name.startsWith("Chapter", ignoreCase = true)) {
+            return "Chapter $number: $name"
+        }
+        return name
+    }
+
+    private suspend fun loadChapterPage(novelSlug: String, page: Int): List<Chapter> {
+        return try {
+            val document = get("$mainUrl/book/$novelSlug/chapters?page=$page").document
+            parseChaptersFromSinglePage(document, novelSlug)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
+     * Loads every page of the chapter list (100 chapters per page) so each chapter has its real title.
+     * Pages are fetched a few at a time. A page that fails falls back to "Chapter N" names.
      */
     private suspend fun loadChaptersFromHtml(novelSlug: String): List<Chapter> {
         try {
-            // Step 1: Load first page to check pagination
-            val firstPageUrl = "$mainUrl/book/$novelSlug/chapters"
-            val firstPageDoc = get(firstPageUrl).document
+            val firstPageDoc = get("$mainUrl/book/$novelSlug/chapters").document
+            val firstPage = parseChaptersFromSinglePage(firstPageDoc, novelSlug)
 
-            // Step 2: Check if pagination exists
-            val pagination = firstPageDoc.selectFirst("div.pagenav div.pagination-container nav ul.pagination")
+            val pageRegex = Regex("[?&]page=(\\d+)")
+            val lastPage = firstPageDoc.select("ul.pagination a[href*=page=]")
+                .mapNotNull { pageRegex.find(it.attr("href"))?.groupValues?.getOrNull(1)?.toIntOrNull() }
+                .maxOrNull() ?: 1
 
-            if (pagination != null) {
-                // Find the last page number
-                val pageItems = pagination.select("li")
-                // Second-to-last item is usually the last page number (last item is "next" arrow)
-                val lastPageElement = pageItems.getOrNull(pageItems.size - 2)
-                val lastPageNumber = lastPageElement?.text()?.toIntOrNull() ?: 1
+            if (lastPage <= 1) return firstPage
 
-                if (lastPageNumber > 1) {
-                    // Step 3: Load ONLY the last page to get total chapter count
-                    val lastPageUrl = "$mainUrl/book/$novelSlug/chapters?page=$lastPageNumber"
-                    val lastPageDoc = get(lastPageUrl).document
+            val pages = mutableMapOf<Int, List<Chapter>>()
+            pages[1] = firstPage
 
-                    // Find the last chapter link
-                    val lastChapterLink = lastPageDoc.select("ul.chapter-list li a")
-                        .lastOrNull()?.attr("href") ?: ""
+            for (batch in (2..lastPage).chunked(4)) {
+                val results = coroutineScope {
+                    batch.map { page -> async { page to loadChapterPage(novelSlug, page) } }.awaitAll()
+                }
+                results.forEach { (page, list) -> pages[page] = list }
+            }
 
-                    // Extract chapter number from URL (e.g., "/book/slug/chapter-2534")
-                    val totalChapters = Regex("chapter-(\\d+)").find(lastChapterLink)
-                        ?.groupValues?.getOrNull(1)?.toIntOrNull()
+            val total = pages[lastPage].orEmpty().lastOrNull()?.let { chapterNumberOf(it.url) }
+                ?: (lastPage * 100)
 
-                    if (totalChapters != null && totalChapters > 0) {
-                        // Step 4: Generate all chapters without making more requests!
-                        return (1..totalChapters).map { chapterNumber ->
-                            val chapterUrl = fixUrl("book/$novelSlug/chapter-$chapterNumber")
-                                ?: "$mainUrl/book/$novelSlug/chapter-$chapterNumber"
-
+            val result = ArrayList<Chapter>()
+            for (page in 1..lastPage) {
+                val list = pages[page].orEmpty()
+                if (list.isNotEmpty()) {
+                    result.addAll(list)
+                } else {
+                    val start = (page - 1) * 100 + 1
+                    val end = minOf(page * 100, total)
+                    for (n in start..end) {
+                        result.add(
                             Chapter(
-                                name = "Chapter $chapterNumber",
-                                url = chapterUrl,
+                                name = "Chapter $n",
+                                url = fixUrl("book/$novelSlug/chapter-$n")
+                                    ?: "$mainUrl/book/$novelSlug/chapter-$n",
                                 dateOfRelease = null
                             )
-                        }
+                        )
                     }
                 }
             }
 
-            // Fallback: No pagination or single page - just parse first page
-            return parseChaptersFromSinglePage(firstPageDoc, novelSlug)
+            return result.distinctBy { it.url }.sortedBy { chapterNumberOf(it.url) ?: 0 }
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -1051,7 +1091,7 @@ class NovelFireProvider : MainProvider() {
             if (seenUrls.add(chapterUrl)) {
                 chapters.add(
                     Chapter(
-                        name = chapterName,
+                        name = normalizeChapterName(chapterName, chapterNumberOf(chapterUrl)),
                         url = chapterUrl,
                         dateOfRelease = dateOfRelease
                     )

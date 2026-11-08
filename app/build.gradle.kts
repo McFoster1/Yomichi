@@ -14,8 +14,9 @@ android {
         applicationId = "app.yomichi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.3.0"
+        // The release workflow passes the real version (-PappVersionName / -PappVersionCode)
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 5
+        versionName = (project.findProperty("appVersionName") as String?) ?: "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

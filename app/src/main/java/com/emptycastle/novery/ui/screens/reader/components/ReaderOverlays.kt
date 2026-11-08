@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,7 +60,6 @@ fun ReaderTopBar(
     largerTouchTargets: Boolean = false,
     onBack: () -> Unit,
     onBookmarkClick: () -> Unit,
-    onCopyChapterClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
@@ -121,20 +119,6 @@ fun ReaderTopBar(
                             estimatedTimeLeft = displayTimeLeft,
                             style = progressStyle,
                             colors = colors
-                        )
-                    }
-                }
-
-                // Copy whole chapter text
-                if (onCopyChapterClick != null) {
-                    IconButton(
-                        onClick = onCopyChapterClick,
-                        modifier = Modifier.size(buttonSize)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copy chapter text",
-                            tint = colors.icon
                         )
                     }
                 }
