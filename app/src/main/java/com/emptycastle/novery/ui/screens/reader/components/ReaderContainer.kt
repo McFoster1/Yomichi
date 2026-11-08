@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -230,9 +229,6 @@ fun ReaderContainer(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            // Tracks the current text selection so selected paragraphs can be kept alive
-            var textSelection by remember { mutableStateOf<Selection?>(null) }
-
             val content: @Composable () -> Unit = {
                 LazyColumn(
                     state = listState,
@@ -263,9 +259,13 @@ fun ReaderContainer(
                         items = uiState.displayItems,
                         key = { _, item -> item.itemId }
                     ) { index, item ->
-                        // While text is selected, keep list items from being discarded as they scroll
-                        // out of view. Compose crashes if the selection points at a discarded item.
-                        SelectionItemPin(active = textSelection != null) {
+                        // Keep list items near the reading position from being discarded as they scroll
+                        // out of view. Compose crashes if a text selection points at a discarded item.
+                        SelectionItemPin(
+                            index = index,
+                            listState = listState,
+                            enabled = settings.longPressSelection
+                        ) {
                         when (item) {
                             is ReaderDisplayItem.ChapterHeader -> {
                                 ChapterHeaderItem(
@@ -442,10 +442,7 @@ fun ReaderContainer(
             }
 
             if (settings.longPressSelection) {
-                SelectionContainer(
-                    selection = textSelection,
-                    onSelectionChange = { textSelection = it }
-                ) {
+                SelectionContainer {
                     content()
                 }
             } else {
@@ -497,11 +494,21 @@ private fun mapFontWeight(readerFontWeight: com.emptycastle.novery.domain.model.
 }
 
 /**
- * Pins the lazy list item while [active] so it stays composed (and selectable) even when it
- * scrolls out of view during a text selection.
+ * Keeps the lazy list item composed (and its text selectable) while it is within a wide range of
+ * the current reading position, even after it scrolls out of view.
  */
 @Composable
-private fun SelectionItemPin(active: Boolean, content: @Composable () -> Unit) {
+private fun SelectionItemPin(
+    index: Int,
+    listState: androidx.compose.foundation.lazy.LazyListState,
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) {
+    val active by remember(index, enabled) {
+        androidx.compose.runtime.derivedStateOf {
+            enabled && kotlin.math.abs(index - listState.firstVisibleItemIndex) <= 150
+        }
+    }
     val pinnable = androidx.compose.ui.layout.LocalPinnableContainer.current
     androidx.compose.runtime.DisposableEffect(pinnable, active) {
         val handle = if (active) pinnable?.pin() else null
