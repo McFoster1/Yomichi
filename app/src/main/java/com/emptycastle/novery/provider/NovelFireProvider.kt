@@ -13,6 +13,7 @@ import com.emptycastle.novery.util.toRelativeTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -968,12 +969,19 @@ class NovelFireProvider : MainProvider() {
     }
 
     private suspend fun loadChapterPage(novelSlug: String, page: Int): List<Chapter> {
-        return try {
-            val document = get("$mainUrl/book/$novelSlug/chapters?page=$page").document
-            parseChaptersFromSinglePage(document, novelSlug)
-        } catch (e: Exception) {
-            emptyList()
+        // The site can refuse quick repeated requests, so retry with longer and longer waits
+        val waits = longArrayOf(0L, 1500L, 3000L, 6000L)
+        for (wait in waits) {
+            if (wait > 0L) delay(wait)
+            try {
+                val document = get("$mainUrl/book/$novelSlug/chapters?page=$page").document
+                val list = parseChaptersFromSinglePage(document, novelSlug)
+                if (list.isNotEmpty()) return list
+            } catch (e: Exception) {
+                // try again
+            }
         }
+        return emptyList()
     }
 
     /**
@@ -995,11 +1003,13 @@ class NovelFireProvider : MainProvider() {
             val pages = mutableMapOf<Int, List<Chapter>>()
             pages[1] = firstPage
 
-            for (batch in (2..lastPage).chunked(4)) {
+            // Two pages at a time with a short pause, to stay under the site's request limit
+            for (batch in (2..lastPage).chunked(2)) {
                 val results = coroutineScope {
                     batch.map { page -> async { page to loadChapterPage(novelSlug, page) } }.awaitAll()
                 }
                 results.forEach { (page, list) -> pages[page] = list }
+                delay(400L)
             }
 
             val total = pages[lastPage].orEmpty().lastOrNull()?.let { chapterNumberOf(it.url) }
