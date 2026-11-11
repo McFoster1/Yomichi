@@ -1,17 +1,22 @@
-<img width="300" height="300" alt="image-removebg-preview" src="https://github.com/user-attachments/assets/e6670700-ff66-4934-a36d-b43442a16442" />
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-dark.png">
+    <img src="docs/images/logo-light.png" alt="Yomichi logo" width="160">
+  </picture>
+</p>
 
-# Novery
+<h1 align="center">Yomichi</h1>
 
 <div align="center">
 
 **A modern Android novel reader with multi-source support, TTS, and offline reading**
 
-[![Website](https://img.shields.io/badge/Website-noveryapp.netlify.app-blue?logo=google-chrome)](https://noveryapp.netlify.app/)
+[![Release](https://img.shields.io/github/v/release/McFoster1/Yomichi?label=Release)](../../releases/latest)
 [![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com/)
 [![Min SDK](https://img.shields.io/badge/Min%20SDK-26-blue.svg)](https://developer.android.com/about/versions/oreo)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
 
-[Download](#installation) · [Features](#features) · [Screenshots](#screenshots)
+[Download](#-installation) · [Features](#-features) · [Credits](#-credits)
 
 </div>
 
@@ -19,134 +24,109 @@
 
 ## 📖 About
 
-**Novery** is a free, open-source Android app for reading web novels from multiple sources. Inspired by [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) and [QuickNovel](https://github.com/LagradOst/QuickNovel), it provides a clean, customizable reading experience with **Text-to-Speech**, **offline reading**, and **personalized recommendations** — all built with **Jetpack Compose** and **Material 3**.
+**Yomichi** is a free, open-source Android app for reading web novels from multiple sources, with **Text-to-Speech**, **offline reading**, and **personalized recommendations**. It is built with **Jetpack Compose** and **Material 3**.
+
+Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, continued and maintained by **McFoster**. The name comes from Tachiyomi and Mihon, the apps that inspired this style of reader.
 
 ---
-
-<div id="features"></div>
 
 ## ✨ Features
 
 ### 📚 Multi-Source Browse & Search
-- **6 novel sources**: NovelFire, Webnovel, NovelBin, LibRead, RoyalRoad, NovelsOnline  
-- Progressive streaming search with fuzzy matching and history  
-- Enable/disable individual sources  
+- **10 built-in sources**: NovelFire, WtrLab, NovelBin, LibRead, RoyalRoad, NovelsOnline, Lnori, Webnovel, FreeWebNovel, AllNovel
+- **Add your own source** from *Settings > Providers* using a site's address and CSS selectors, and edit or delete it later
+- Progressive streaming search with fuzzy matching and history
+- Enable, disable, and reorder individual sources
 
 ### 📖 Reader
-- Continuous scroll or Chaptered view  
-- Customizable fonts, sizing, spacing, alignment, and colors  
-- Fullscreen mode with auto-hiding controls and volume key navigation  
-- Bookmarks  
-- Stable position tracking across sessions  
+- Continuous scroll or Chaptered view
+- Customizable fonts, sizing, spacing, alignment, and colors
+- Fullscreen mode with auto-hiding controls and volume key navigation
+- Text selection across any amount of text
+- Bookmarks and stable position tracking across sessions
 
 ### 🎧 Text-to-Speech
-- Background playback with screen off  
-- Real-time sentence highlighting and auto-scroll  
-- Lock screen and Bluetooth media controls  
-- Automatic chapter advancement  
-- Full voice selection from device TTS engines  
+- Background playback with the screen off
+- Real-time sentence highlighting and auto-scroll
+- Lock screen and Bluetooth media controls
+- Automatic chapter advancement and full voice selection
 
 ### 💾 Offline Reading
-- Background download queue with priority levels  
-- Auto-download new chapters from library novels  
-- Per-novel storage management  
+- Background download queue with priority levels
+- Auto-download new chapters from library novels
+- Per-novel storage management
 
 ### 📚 Library
-- Track status: Reading, Completed, On Hold, Plan to Read, Dropped  
-- New chapter detection with badge indicators  
-- Filtering, sorting, and batch operations  
+- Track status: Reading, Completed, On Hold, Plan to Read, Dropped
+- New chapter detection with badge indicators
+- Filtering, sorting, and batch operations
 
 ### 🤖 Recommendations
-- Tag-based matching engine that learns from your reading patterns  
-- Categories: *For You*, *Because You Read X*, *From Authors You Like*  
-- Configurable filters to block unwanted tags, authors, or sources  
+- Tag-based matching that learns from your reading patterns
+- Categories: *For You*, *Because You Read X*, *From Authors You Like*
+- Configurable filters to block unwanted tags, authors, or sources
 
 ### 🎨 Theming
-- Material You dynamic colors (Android 12+)  
-- Light, Dark, and AMOLED black modes  
-- 7 preset themes + full custom color picker  
-- Independent reader color scheme  
+- Material You dynamic colors (Android 12+)
+- Light, Dark, and AMOLED black modes
+- Preset themes plus a full custom color picker
+- Independent reader color scheme
 
-### 📊 Statistics & History
-- Automatic reading time tracking  
-- Daily reading streaks  
-- History timeline grouped by date  
-- Chapter completion progress  
-
----
-
-<div id="screenshots"></div>
-
-## 📸 Screenshots
-
-<div align="center" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">
-
-  <img src="https://github.com/user-attachments/assets/c0679bb9-4204-42e2-a71a-3faf9e3e4c87" alt="Onboard" width="250" />
-  <img src="https://github.com/user-attachments/assets/281da9b1-4d71-41d1-89b8-264d085eebb7" alt="Library" width="250" />
-  <img src="https://github.com/user-attachments/assets/b715a6ec-2a40-4aa8-bb92-609b34d7c0d4" alt="TTS" width="250" />
-  <img src="https://github.com/user-attachments/assets/084957c8-2a01-4535-8318-9dfb4708ba9f" alt="Settings" width="250" />
-  <img src="https://github.com/user-attachments/assets/bea55bae-24fa-4694-8dc9-9e631c1772f5" alt="Themes" width="250" />
-  <img src="https://github.com/user-attachments/assets/2171786b-337c-4e26-a505-cbc15092e4b8" alt="Stats" width="250" />
-  <img src="https://github.com/user-attachments/assets/349b1de7-ffb8-47b9-8d37-307392715e2c" alt="History" width="250" />
-  <img src="https://github.com/user-attachments/assets/75247556-b5aa-4756-87c5-0f01e3a81803" alt="Download" width="250" />
-  <img src="https://github.com/user-attachments/assets/5953d4c2-2e31-4a8b-b2f7-981628ce22ac" alt="Reader 2" width="250" />
-    <img src="https://github.com/user-attachments/assets/2473aaa3-9c43-4a67-b089-6fa7a71be0c6" alt="Reader" width="250" />
-  <img src="https://github.com/user-attachments/assets/1b517ca6-3e54-45e3-923a-61b5f8c0759a" alt="Reader" width="250" />
-
-</div>
-
+### 📊 Statistics, History & Backup
+- Automatic reading time tracking and daily streaks
+- History timeline grouped by date
+- Backup and restore, including Novery backups
+- A built-in **crash log** you can copy from *About* when reporting a bug
 
 ---
-
-<div id="installation"></div>
 
 ## 📥 Installation
 
 ### Download
-1. Grab the latest APK from [Releases](../../releases)  
-2. Install and grant notification permissions when prompted  
+1. Grab the latest APK from [Releases](../../releases/latest)
+2. Install it and grant notification permission when prompted
 
 > Requires **Android 8.0+ (API 26)**
 
 ### Build from Source
+Releases are built by GitHub Actions: open the **Actions** tab, choose **Build and release Yomichi**, press **Run workflow**, and enter a version number. The signed APK is published on the Releases page.
+
+To build locally:
 ```bash
-git clone https://github.com/1Finn2me/Novery.git
-cd Novery
-./gradlew installDebug
+git clone https://github.com/McFoster1/Yomichi.git
+cd Yomichi
+./gradlew assembleDebug
 ```
-Requires **Android Studio Koala+**, **JDK 11+**, **Kotlin 2.0.21**.
+Requires **JDK 17** and **Kotlin 2.0.21**.
 
 ---
 
-## 🙏 Acknowledgments
-- [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) — pioneered the multi-source reader concept  
-- [QuickNovel](https://github.com/LagradOst/QuickNovel) — inspiration for novel-specific reader design  
-- [LNReader](https://github.com/LNReader/lnreader-sources) — extensible source architecture  
+## 🙏 Credits
+
+- [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, the project Yomichi is forked from
+- [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) and [Mihon](https://github.com/mihonapp/mihon), which pioneered the multi-source reader concept
+- [QuickNovel](https://github.com/LagradOst/QuickNovel), inspiration for novel-specific reader design
+- [LNReader](https://github.com/LNReader/lnreader-sources), extensible source architecture
+
+Yomichi is released under the **GNU General Public License v3.0**. See [LICENSE](LICENSE). The original copyright notices are kept, and the changes made in this fork are recorded in the commit history and in the [changelog](CHANGELOG.md).
 
 ---
 
 ## ⚠️ Disclaimer
-Novery does not host, store, or distribute any content. The app functions as a search
-engine and aggregator — it crawls and displays content from third-party websites that
-are publicly accessible through any standard web browser. Novery has no affiliation
-with, and no control over, the content provided by these sources.
 
-Any legal concerns regarding content should be directed to the respective website
-operators and content hosts. In cases of copyright infringement, please contact the
-responsible parties or file hosts directly.
+Yomichi does not host, store, or distribute any content. The app functions as a search engine and aggregator: it crawls and displays content from third-party websites that are publicly accessible through any standard web browser. Yomichi has no affiliation with, and no control over, the content provided by these sources.
 
-This application is intended for personal and educational use only. Users are solely
-responsible for ensuring their use of the app complies with all applicable local,
-national, and international laws. Use Novery at your own risk.
+Any legal concerns regarding content should be directed to the respective website operators and content hosts. In cases of copyright infringement, please contact the responsible parties or file hosts directly.
 
-By using this application, you acknowledge that the developers of Novery bear no
-responsibility for any content accessed through third-party sources, nor for any
-consequences arising from the use of this app.
+This application is intended for personal and educational use only. Users are solely responsible for ensuring their use of the app complies with all applicable local, national, and international laws. Use Yomichi at your own risk.
+
+By using this application, you acknowledge that the developers of Yomichi bear no responsibility for any content accessed through third-party sources, nor for any consequences arising from the use of this app.
+
 ---
 
 <div align="center">
 
-⭐ **Star the repo if you find Novery useful!**  
+⭐ **Star the repo if you find Yomichi useful!**
 
 [Report Bug](../../issues) · [Request Feature](../../issues)
 
