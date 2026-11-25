@@ -34,6 +34,7 @@ class NoveryApp : Application() {
 
         // Record crashes so they can be copied from the About screen
         com.emptycastle.novery.util.CrashLogger.install(this)
+        com.emptycastle.novery.data.local.StreakFreezeStore.init(this)
 
         CloudflareManager.init(this)
 

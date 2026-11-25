@@ -71,7 +71,7 @@ class DetailsViewModel : ViewModel() {
     // FILTERED CHAPTERS COMPUTATION
     // ================================================================
 
-    private fun recomputeFilteredChapters() {
+    private fun recomputeFilteredChapters(resetPage: Boolean = false) {
         val state = _uiState.value
         var chapters = state.novelDetails?.chapters ?: emptyList()
 
@@ -106,9 +106,17 @@ class DetailsViewModel : ViewModel() {
             it.copy(
                 filteredChapters = sortedChapters,
                 filterVersion = it.filterVersion + 1,
-                // Reset to page 1 when filters change
+                // Go back to page 1 only when the filter, search or sort changed.
+                // Otherwise (for example after reading a chapter) stay on the current page.
                 paginationState = if (it.chapterDisplayMode == ChapterDisplayMode.PAGINATED) {
-                    it.paginationState.copy(currentPage = 1)
+                    if (resetPage) {
+                        it.paginationState.copy(currentPage = 1)
+                    } else {
+                        val totalPages = it.paginationState.getTotalPages(sortedChapters.size)
+                        it.paginationState.copy(
+                            currentPage = it.paginationState.currentPage.coerceIn(1, totalPages.coerceAtLeast(1))
+                        )
+                    }
                 } else {
                     it.paginationState
                 }
@@ -396,12 +404,12 @@ class DetailsViewModel : ViewModel() {
         val newValue = !_uiState.value.isChapterSortDescending
         _uiState.update { it.copy(isChapterSortDescending = newValue) }
         preferencesManager.setChapterSortDescending(newValue)
-        recomputeFilteredChapters()
+        recomputeFilteredChapters(resetPage = true)
     }
 
     fun setChapterFilter(filter: ChapterFilter) {
         _uiState.update { it.copy(chapterFilter = filter) }
-        recomputeFilteredChapters()
+        recomputeFilteredChapters(resetPage = true)
     }
 
     fun setChapterDisplayMode(mode: ChapterDisplayMode) {
@@ -478,7 +486,7 @@ class DetailsViewModel : ViewModel() {
 
     fun setChapterSearchQuery(query: String) {
         _uiState.update { it.copy(chapterSearchQuery = query) }
-        recomputeFilteredChapters()
+        recomputeFilteredChapters(resetPage = true)
     }
 
     fun toggleSearch() {
@@ -490,7 +498,7 @@ class DetailsViewModel : ViewModel() {
             )
         }
         if (wasActive) {
-            recomputeFilteredChapters()
+            recomputeFilteredChapters(resetPage = true)
         }
     }
 
@@ -719,6 +727,26 @@ class DetailsViewModel : ViewModel() {
         }
     }
 
+    /** Selects every chapter above the topmost selected chapter (in the order shown on screen). */
+    fun selectAbove() {
+        val state = _uiState.value
+        val chapters = state.filteredChapters
+        val firstSelected = chapters.indexOfFirst { state.selectedChapters.contains(it.url) }
+        if (firstSelected <= 0) return
+        val urls = chapters.subList(0, firstSelected).map { it.url }
+        _uiState.update { it.copy(selectedChapters = it.selectedChapters + urls) }
+    }
+
+    /** Selects every chapter below the bottommost selected chapter (in the order shown on screen). */
+    fun selectBelow() {
+        val state = _uiState.value
+        val chapters = state.filteredChapters
+        val lastSelected = chapters.indexOfLast { state.selectedChapters.contains(it.url) }
+        if (lastSelected < 0 || lastSelected >= chapters.size - 1) return
+        val urls = chapters.subList(lastSelected + 1, chapters.size).map { it.url }
+        _uiState.update { it.copy(selectedChapters = it.selectedChapters + urls) }
+    }
+
     fun invertSelection() {
         val allChapterUrls = _uiState.value.filteredChapters.map { it.url }.toSet()
         _uiState.update {
@@ -805,6 +833,25 @@ class DetailsViewModel : ViewModel() {
 
         val chaptersToDownload = undownloadedChapters.take(count.coerceAtLeast(1))
         startBackgroundDownload(context, chaptersToDownload)
+    }
+
+    /**
+     * Downloads chapters [fromChapter]..[toChapter] (positions in the chapter list, starting at 1).
+     * Chapters that are already downloaded are skipped.
+     */
+    fun downloadRange(context: Context, fromChapter: Int, toChapter: Int) {
+        val details = _uiState.value.novelDetails ?: return
+        val downloaded = _uiState.value.downloadedChapters
+        val chapters = details.chapters
+        if (chapters.isEmpty()) return
+
+        val start = (fromChapter - 1).coerceIn(0, chapters.size - 1)
+        val end = (toChapter - 1).coerceIn(start, chapters.size - 1)
+
+        val toDownload = chapters.subList(start, end + 1).filter { !downloaded.contains(it.url) }
+        if (toDownload.isNotEmpty()) {
+            startBackgroundDownload(context, toDownload)
+        }
     }
 
     fun downloadUnread(context: Context) {

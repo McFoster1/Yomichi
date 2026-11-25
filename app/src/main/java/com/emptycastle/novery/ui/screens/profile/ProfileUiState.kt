@@ -10,6 +10,10 @@ data class ProfileUiState(
     val currentStreak: Int = 0,
     val longestStreak: Int = 0,
     val isStreakActive: Boolean = false,
+    val isFrozenToday: Boolean = false,
+    val canFreezeStreak: Boolean = false,
+    val freezeUsedThisWeek: Boolean = false,
+    val weeklyFrozen: List<Boolean> = List(7) { false },
     val totalDaysRead: Int = 0,
 
     // Reading time (in seconds)

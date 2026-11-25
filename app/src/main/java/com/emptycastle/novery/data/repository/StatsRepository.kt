@@ -113,8 +113,9 @@ class StatsRepository(
                 updatedAt = System.currentTimeMillis()
             )
 
-            // Consecutive day - increment streak and add time
-            streak.lastReadDate == currentDay - 1 -> streak.copy(
+            // Consecutive day (or only frozen days in between) - increment streak and add time
+            streak.lastReadDate > 0 && streak.lastReadDate < currentDay &&
+                com.emptycastle.novery.data.local.StreakFreezeStore.bridges(streak.lastReadDate, currentDay) -> streak.copy(
                 currentStreak = streak.currentStreak + 1,
                 longestStreak = maxOf(streak.longestStreak, streak.currentStreak + 1),
                 lastReadDate = currentDay,

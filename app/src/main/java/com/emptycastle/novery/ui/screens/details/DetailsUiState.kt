@@ -222,7 +222,7 @@ data class DetailsUiState(
                 } else {
                     filteredChapters.subList(
                         range.first,
-                        range.last.coerceAtMost(filteredChapters.size)
+                        (range.last + 1).coerceAtMost(filteredChapters.size)
                     )
                 }
             }
@@ -249,7 +249,7 @@ data class DetailsUiState(
             return if (range.isEmpty()) {
                 "0 of 0"
             } else {
-                "${range.first + 1}-${range.last} of ${filteredChapters.size}"
+                "${range.first + 1}-${range.last + 1} of ${filteredChapters.size}"
             }
         }
 

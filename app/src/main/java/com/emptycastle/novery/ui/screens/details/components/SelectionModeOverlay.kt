@@ -36,6 +36,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.Deselect
+import androidx.compose.material.icons.outlined.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.outlined.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -95,7 +97,8 @@ data class SelectionCallbacks(
     val onSelectAllUnread: () -> Unit,
     val onSelectAllNotDownloaded: () -> Unit,
     val onDeselectAll: () -> Unit,
-    val onInvertSelection: () -> Unit,
+    val onSelectAbove: () -> Unit,
+    val onSelectBelow: () -> Unit,
     val onCancel: () -> Unit,
     val onDownload: () -> Unit,
     val onDelete: () -> Unit,
@@ -232,10 +235,16 @@ private fun SelectionTopBar(
                         contentDescription = "Select all"
                     )
                     TopBarIconButton(
-                        onClick = callbacks.onInvertSelection,
+                        onClick = callbacks.onSelectAbove,
                         enabled = selectionState.hasSelection,
-                        icon = Icons.Outlined.SwapVert,
-                        contentDescription = "Invert selection"
+                        icon = Icons.Outlined.KeyboardDoubleArrowUp,
+                        contentDescription = "Select all chapters above"
+                    )
+                    TopBarIconButton(
+                        onClick = callbacks.onSelectBelow,
+                        enabled = selectionState.hasSelection,
+                        icon = Icons.Outlined.KeyboardDoubleArrowDown,
+                        contentDescription = "Select all chapters below"
                     )
                     TopBarIconButton(
                         onClick = callbacks.onDeselectAll,
@@ -810,7 +819,8 @@ fun createSelectionCallbacks(
     onSelectAllUnread: () -> Unit = onSelectAll,
     onSelectAllNotDownloaded: () -> Unit = onSelectAll,
     onDeselectAll: () -> Unit,
-    onInvertSelection: () -> Unit,
+    onSelectAbove: () -> Unit,
+    onSelectBelow: () -> Unit,
     onCancel: () -> Unit,
     onDownload: () -> Unit,
     onDelete: () -> Unit,
@@ -822,7 +832,8 @@ fun createSelectionCallbacks(
     onSelectAllUnread = onSelectAllUnread,
     onSelectAllNotDownloaded = onSelectAllNotDownloaded,
     onDeselectAll = onDeselectAll,
-    onInvertSelection = onInvertSelection,
+    onSelectAbove = onSelectAbove,
+    onSelectBelow = onSelectBelow,
     onCancel = onCancel,
     onDownload = onDownload,
     onDelete = onDelete,

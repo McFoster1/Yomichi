@@ -54,12 +54,47 @@ class ProfileViewModel : ViewModel() {
         observeStreak()
     }
 
+    private var lastStreak: com.emptycastle.novery.data.local.entity.ReadingStreakEntity? = null
+
+    /** Works out what the streak freeze button should show. */
+    private fun updateFreezeState() {
+        val store = com.emptycastle.novery.data.local.StreakFreezeStore
+        val today = LocalDate.now().toEpochDay()
+        val streak = lastStreak
+        val frozen = store.frozenDays()
+        val isFrozenToday = today in frozen
+        val streakIsAlive = streak != null && streak.currentStreak > 0 &&
+            (streak.lastReadDate >= today - 1 || store.bridges(streak.lastReadDate, today))
+        val canFreezeNow = store.canFreeze(today)
+
+        _uiState.update {
+            it.copy(
+                isFrozenToday = isFrozenToday,
+                canFreezeStreak = streakIsAlive && streak!!.lastReadDate != today && !isFrozenToday && canFreezeNow,
+                freezeUsedThisWeek = streakIsAlive && !isFrozenToday && !canFreezeNow,
+                weeklyFrozen = List(7) { i -> (today - 6 + i) in frozen }
+            )
+        }
+    }
+
+    /** Freezes today's streak (one freeze per week). */
+    fun freezeStreak() {
+        val today = LocalDate.now().toEpochDay()
+        if (com.emptycastle.novery.data.local.StreakFreezeStore.freeze(today)) {
+            updateFreezeState()
+        }
+    }
+
     private fun observeStreak() {
         viewModelScope.launch {
             statsRepository.observeStreak().collect { streak ->
+                lastStreak = streak
+                updateFreezeState()
                 if (streak != null) {
                     val today = LocalDate.now().toEpochDay()
-                    val isActive = streak.lastReadDate >= today - 1
+                    val isActive = streak.lastReadDate >= today - 1 ||
+                        (streak.lastReadDate > 0 &&
+                            com.emptycastle.novery.data.local.StreakFreezeStore.bridges(streak.lastReadDate, today))
 
                     _uiState.update {
                         it.copy(

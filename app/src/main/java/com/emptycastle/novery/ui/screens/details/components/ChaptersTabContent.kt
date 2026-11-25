@@ -79,7 +79,7 @@ fun ChaptersTabContent(
                 if (range.isEmpty()) {
                     emptyList()
                 } else {
-                    filteredChapters.subList(range.first, range.last.coerceAtMost(filteredChapters.size))
+                    filteredChapters.subList(range.first, (range.last + 1).coerceAtMost(filteredChapters.size))
                 }
             }
         }

@@ -38,6 +38,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.rounded.AcUnit
 import androidx.compose.material.icons.rounded.AutoStories
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -206,7 +207,8 @@ fun ProfileScreen(
             } else {
                 ProfileContent(
                     uiState = uiState,
-                    onNovelClick = { novel -> viewModel.onNovelClick(novel) }
+                    onNovelClick = { novel -> viewModel.onNovelClick(novel) },
+                    onFreezeStreak = { viewModel.freezeStreak() }
                 )
             }
         }
@@ -220,7 +222,8 @@ fun ProfileScreen(
 @Composable
 private fun ProfileContent(
     uiState: ProfileUiState,
-    onNovelClick: (NovelReadingStats) -> Unit
+    onNovelClick: (NovelReadingStats) -> Unit,
+    onFreezeStreak: () -> Unit = {}
 ) {
     val dimensions = NoveryTheme.dimensions
 
@@ -255,6 +258,10 @@ private fun ProfileContent(
                         currentStreak = uiState.currentStreak,
                         longestStreak = uiState.longestStreak,
                         isStreakActive = uiState.isStreakActive,
+                        isFrozenToday = uiState.isFrozenToday,
+                        canFreeze = uiState.canFreezeStreak,
+                        freezeUsed = uiState.freezeUsedThisWeek,
+                        onFreeze = onFreezeStreak,
                         modifier = Modifier.padding(horizontal = dimensions.gridPadding)
                     )
                 }
@@ -284,6 +291,7 @@ private fun ProfileContent(
         item(key = "weekly_activity") {
             WeeklyActivitySection(
                 dailyMinutes = uiState.weeklyActivity,
+                frozenDays = uiState.weeklyFrozen,
                 modifier = Modifier.padding(horizontal = dimensions.gridPadding)
             )
         }
@@ -591,8 +599,15 @@ private fun StreakCard(
     currentStreak: Int,
     longestStreak: Int,
     isStreakActive: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFrozenToday: Boolean = false,
+    canFreeze: Boolean = false,
+    freezeUsed: Boolean = false,
+    onFreeze: () -> Unit = {}
 ) {
+    val showFreezeConfirm = remember { androidx.compose.runtime.mutableStateOf(false) }
+    val iceBlue = Color(0xFF4FC3F7)
+
     val infiniteTransition = rememberInfiniteTransition(label = "fire")
     val fireScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -655,6 +670,60 @@ private fun StreakCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
+
+                // Streak freeze (one per week)
+                if (isFrozenToday) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AcUnit,
+                            contentDescription = null,
+                            tint = iceBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "Frozen today. Your streak is safe.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = iceBlue
+                        )
+                    }
+                } else if (canFreeze) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { showFreezeConfirm.value = true },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AcUnit,
+                            contentDescription = null,
+                            tint = iceBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "  Freeze today",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = iceBlue
+                        )
+                    }
+                } else if (freezeUsed) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AcUnit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "Freeze used this week. Resets Monday.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                }
             }
 
             if (isStreakActive && currentStreak > 0) {
@@ -671,6 +740,37 @@ private fun StreakCard(
                 )
             }
         }
+    }
+
+    if (showFreezeConfirm.value) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showFreezeConfirm.value = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.AcUnit,
+                    contentDescription = null,
+                    tint = iceBlue
+                )
+            },
+            title = { Text("Freeze your streak today?") },
+            text = {
+                Text(
+                    "Your streak won't grow today, but it won't break either. " +
+                        "You can use one freeze per week, and it resets on Monday."
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showFreezeConfirm.value = false
+                    onFreeze()
+                }) { Text("Freeze") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showFreezeConfirm.value = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -999,7 +1099,8 @@ private fun TimeStatCard(
 @Composable
 private fun WeeklyActivitySection(
     dailyMinutes: List<Long>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    frozenDays: List<Boolean> = emptyList()
 ) {
     val dayLabels = remember { listOf("M", "T", "W", "T", "F", "S", "S") }
     val maxMinutes = remember(dailyMinutes) { dailyMinutes.maxOrNull()?.coerceAtLeast(1L) ?: 1L }
@@ -1058,6 +1159,17 @@ private fun WeeklyActivitySection(
                                     .clip(RoundedCornerShape(6.dp))
                                     .background(barColor)
                             )
+
+                            if (frozenDays.getOrElse(index) { false }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.AcUnit,
+                                    contentDescription = "Frozen day",
+                                    tint = Color(0xFF4FC3F7),
+                                    modifier = Modifier
+                                        .size(18.dp)
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
 
                         Text(

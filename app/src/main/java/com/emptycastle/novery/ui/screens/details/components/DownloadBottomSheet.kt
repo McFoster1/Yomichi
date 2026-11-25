@@ -136,6 +136,7 @@ data class DownloadSheetCallbacks(
     val onDismiss: () -> Unit,
     val onDownloadAll: () -> Unit,
     val onDownloadNext: (Int) -> Unit,
+    val onDownloadRange: (Int, Int) -> Unit = { _, _ -> },
     val onDownloadUnread: () -> Unit,
     val onSelectChapters: () -> Unit,
     val onPause: () -> Unit,
@@ -158,6 +159,7 @@ fun DownloadBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showCustomDialog by remember { mutableStateOf(false) }
+    var showRangeDialog by remember { mutableStateOf(false) }
 
     // Custom amount dialog
     if (showCustomDialog) {
@@ -169,6 +171,19 @@ fun DownloadBottomSheet(
                 callbacks.onDismiss()
             },
             onDismiss = { showCustomDialog = false }
+        )
+    }
+
+    // "Choose" dialog: download from chapter X to chapter Y
+    if (showRangeDialog) {
+        ChapterRangeDialog(
+            totalChapters = state.totalChapterCount,
+            onConfirm = { from, to ->
+                callbacks.onDownloadRange(from, to)
+                showRangeDialog = false
+                callbacks.onDismiss()
+            },
+            onDismiss = { showRangeDialog = false }
         )
     }
 
@@ -283,7 +298,8 @@ fun DownloadBottomSheet(
                                 callbacks.onSelectChapters()
                                 callbacks.onDismiss()
                             },
-                            onCustomAmount = { showCustomDialog = true }
+                            onCustomAmount = { showCustomDialog = true },
+                            onChooseRange = { showRangeDialog = true }
                         )
                     }
                 }
@@ -317,6 +333,7 @@ fun DownloadBottomSheet(
     onDismiss: () -> Unit,
     onDownloadAll: () -> Unit,
     onDownloadNext: (Int) -> Unit,
+    onDownloadRange: (Int, Int) -> Unit = { _, _ -> },
     onDownloadUnread: () -> Unit,
     onSelectChapters: () -> Unit,
     onPause: () -> Unit,
@@ -347,6 +364,7 @@ fun DownloadBottomSheet(
             onDismiss = onDismiss,
             onDownloadAll = onDownloadAll,
             onDownloadNext = onDownloadNext,
+            onDownloadRange = onDownloadRange,
             onDownloadUnread = onDownloadUnread,
             onSelectChapters = onSelectChapters,
             onPause = onPause,
@@ -859,6 +877,7 @@ private fun DownloadOptionsContent(
     onDownloadUnread: () -> Unit,
     onSelectChapters: () -> Unit,
     onCustomAmount: () -> Unit,
+    onChooseRange: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val buttonText = if (willQueue) "Add to Queue" else "Download"
@@ -910,6 +929,13 @@ private fun DownloadOptionsContent(
                         icon = Icons.Rounded.Edit,
                         onClick = onCustomAmount
                     )
+                    if (state.totalChapterCount > 1) {
+                        QuickDownloadChip(
+                            label = "Choose",
+                            icon = Icons.Outlined.CheckBox,
+                            onClick = onChooseRange
+                        )
+                    }
                 }
             }
         }
@@ -1232,6 +1258,105 @@ private fun DownloadOptionItem(
 // ================================================================
 // CUSTOM AMOUNT DIALOG
 // ================================================================
+
+@Composable
+private fun ChapterRangeDialog(
+    totalChapters: Int,
+    onConfirm: (Int, Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var fromText by remember { mutableStateOf("") }
+    var toText by remember { mutableStateOf("") }
+
+    val from = fromText.toIntOrNull()
+    val to = toText.toIntOrNull()
+    val isValid = from != null && to != null && from >= 1 && to <= totalChapters && from <= to
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = "Choose chapters",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Download from one chapter to another",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = fromText,
+                        onValueChange = { newValue ->
+                            if (newValue.all { it.isDigit() }) fromText = newValue.take(5)
+                        },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("From") },
+                        placeholder = { Text("1") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    Text(
+                        text = "to",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    OutlinedTextField(
+                        value = toText,
+                        onValueChange = { newValue ->
+                            if (newValue.all { it.isDigit() }) toText = newValue.take(5)
+                        },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("To") },
+                        placeholder = { Text("$totalChapters") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                }
+
+                Text(
+                    text = if (isValid) {
+                        "${to!! - from!! + 1} chapters (already downloaded ones are skipped)"
+                    } else {
+                        "Chapters 1 to $totalChapters"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    androidx.compose.material3.TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    Button(
+                        onClick = { if (isValid) onConfirm(from!!, to!!) },
+                        enabled = isValid
+                    ) {
+                        Text("Download")
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun CustomAmountDialog(

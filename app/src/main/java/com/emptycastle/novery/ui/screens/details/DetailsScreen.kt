@@ -350,7 +350,8 @@ fun DetailsScreen(
                                     onSelectAllUnread = { viewModel.selectAllUnread() },
                                     onSelectAllNotDownloaded = { viewModel.selectAllNotDownloaded() },
                                     onDeselectAll = { viewModel.deselectAll() },
-                                    onInvertSelection = { viewModel.invertSelection() },
+                                    onSelectAbove = { viewModel.selectAbove() },
+                                    onSelectBelow = { viewModel.selectBelow() },
                                     onCancel = { viewModel.disableSelectionMode() },
                                     onDownload = { viewModel.downloadSelected(context) },
                                     onDelete = { viewModel.deleteSelectedDownloads() },
@@ -505,6 +506,7 @@ private fun DetailsDialogs(
             onDismiss = { viewModel.hideDownloadMenu() },
             onDownloadAll = { viewModel.downloadAll(context) },
             onDownloadNext = { count -> viewModel.downloadNextN(context, count) },
+            onDownloadRange = { from, to -> viewModel.downloadRange(context, from, to) },
             onDownloadUnread = { viewModel.downloadUnread(context) },
             onSelectChapters = {
                 viewModel.hideDownloadMenu()
