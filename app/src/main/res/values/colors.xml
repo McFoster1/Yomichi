@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Notification Colors - Orange primary theme -->
-    <color name="notification_accent">#FF9800</color>  <!-- Material Orange 500 (primary) -->
+    <color name="notification_accent">#6ED6E8</color>  <!-- Yomichi soft cyan -->
     <color name="notification_paused">#FB8C00</color>   <!-- Material Orange 600 -->
     <color name="notification_success">#43A047</color>  <!-- Material Green 600 -->
     <color name="notification_warning">#FFC107</color>  <!-- Material Amber 500 -->

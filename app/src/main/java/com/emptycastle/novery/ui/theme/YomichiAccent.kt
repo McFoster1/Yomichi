@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.lerp
  * (reader bar, TTS player, chapter list...). Updated by [NoveryTheme] whenever the theme changes.
  */
 object YomichiAccent {
-    var primary: Color by mutableStateOf(Color(0xFFFF6B35))
+    var primary: Color by mutableStateOf(Color(0xFF6ED6E8))
 
     val primaryLight: Color
         get() = lerp(primary, Color.White, 0.25f)

@@ -122,13 +122,21 @@ sealed class GridColumns {
  * Custom theme colors configuration
  */
 data class CustomThemeColors(
-    val primaryColor: Long = 0xFFEA580C,      // Orange600
-    val secondaryColor: Long = 0xFFFB923C,    // Orange400
-    val backgroundColor: Long = 0xFF09090B,   // Zinc950
-    val surfaceColor: Long = 0xFF18181B       // Zinc900
+    val primaryColor: Long = 0xFF6ED6E8,      // Soft cyan
+    val secondaryColor: Long = 0xFF4FB3C7,    // Deeper cyan
+    val backgroundColor: Long = 0xFF0B0F14,   // Midnight
+    val surfaceColor: Long = 0xFF151B23       // Surface
 ) {
     companion object {
         val DEFAULT = CustomThemeColors()
+
+        // The orange look the app had before Yomichi's own palette
+        val CLASSIC = CustomThemeColors(
+            primaryColor = 0xFFEA580C,    // Orange-600
+            secondaryColor = 0xFFFB923C,  // Orange-400
+            backgroundColor = 0xFF09090B, // Zinc-950
+            surfaceColor = 0xFF18181B     // Zinc-900
+        )
 
         // Preset themes
         val OCEAN = CustomThemeColors(
@@ -174,7 +182,8 @@ data class CustomThemeColors(
         )
 
         val PRESETS = listOf(
-            "Default" to DEFAULT,
+            "Yomichi" to DEFAULT,
+            "Classic" to CLASSIC,
             "Ocean" to OCEAN,
             "Forest" to FOREST,
             "Sunset" to SUNSET,

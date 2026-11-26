@@ -14,6 +14,7 @@
 - Releases built by a manually run GitHub Actions workflow with a chosen version number, signed with the Yomichi key
 
 ### Changed
+- New default color theme: midnight background with a soft cyan accent. The previous orange look is still available as the "Classic" preset in Settings
 - Renamed to Yomichi with a new icon, system splash, and "BY MCFOSTER" splash screen
 - Accent colors in the reader bar, TTS player, voice selector, and chapter list now follow the app theme
 - About page credits the original Novery project and notes that Yomichi is a fork

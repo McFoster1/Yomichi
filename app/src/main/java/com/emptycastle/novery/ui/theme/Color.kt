@@ -75,3 +75,13 @@ val ReaderLightSecondary = Zinc600
 val ReaderSepiaBackground = Color(0xFFF4ECD8)
 val ReaderSepiaText = Color(0xFF5B4636)
 val ReaderSepiaSecondary = Color(0xFF8B7355)
+
+// ============================================================================
+// YOMICHI PALETTE - Midnight + Soft Cyan
+// ============================================================================
+val YomichiMidnight = Color(0xFF0B0F14)   // Background
+val YomichiSurface = Color(0xFF151B23)    // Cards and dialogs
+val YomichiBorder = Color(0xFF202A36)     // Dividers and borders
+val YomichiCyan = Color(0xFF6ED6E8)       // Primary accent (dark mode)
+val YomichiCyanDeep = Color(0xFF0E7490)   // Primary accent (light mode)
+val YomichiMuted = Color(0xFFA8B4C4)      // Secondary text
