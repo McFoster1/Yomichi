@@ -15,8 +15,9 @@
 [![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com/)
 [![Min SDK](https://img.shields.io/badge/Min%20SDK-26-blue.svg)](https://developer.android.com/about/versions/oreo)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![Website](https://img.shields.io/badge/Website-yomichi.netlify.app-6ED6E8.svg)](https://yomichi.netlify.app/)
 
-[Download](#-installation) · [Features](#-features) · [Credits](#-credits)
+[Website](https://yomichi.netlify.app/) · [Download](#-installation) · [Features](#-features) · [Credits](#-credits)
 
 </div>
 
@@ -27,6 +28,8 @@
 **Yomichi** is a free, open-source Android app for reading web novels from multiple sources, with **Text-to-Speech**, **offline reading**, and **personalized recommendations**. It is built with **Jetpack Compose** and **Material 3**.
 
 Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, continued and maintained by **McFoster**. The name comes from Tachiyomi and Mihon, the apps that inspired this style of reader.
+
+🌐 **Website:** [yomichi.netlify.app](https://yomichi.netlify.app/)
 
 ---
 
@@ -53,6 +56,7 @@ Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, c
 
 ### 💾 Offline Reading
 - Background download queue with priority levels
+- Download a range of chapters ("Choose") or the next 10, 25, 50, or 100
 - Auto-download new chapters from library novels
 - Per-novel storage management
 
@@ -60,6 +64,7 @@ Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, c
 - Track status: Reading, Completed, On Hold, Plan to Read, Dropped
 - New chapter detection with badge indicators
 - Filtering, sorting, and batch operations
+- Select all chapters above or below your selection
 
 ### 🤖 Recommendations
 - Tag-based matching that learns from your reading patterns
@@ -67,13 +72,14 @@ Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, c
 - Configurable filters to block unwanted tags, authors, or sources
 
 ### 🎨 Theming
+- Midnight and soft cyan default look, plus a "Classic" orange preset
 - Material You dynamic colors (Android 12+)
 - Light, Dark, and AMOLED black modes
 - Preset themes plus a full custom color picker
 - Independent reader color scheme
 
 ### 📊 Statistics, History & Backup
-- Automatic reading time tracking and daily streaks
+- Automatic reading time tracking and daily streaks, with one streak freeze per week
 - History timeline grouped by date
 - Backup and restore, including Novery backups
 - A built-in **crash log** you can copy from *About* when reporting a bug
@@ -83,7 +89,7 @@ Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, c
 ## 📥 Installation
 
 ### Download
-1. Grab the latest APK from [Releases](../../releases/latest)
+1. Grab the latest APK from [Releases](../../releases/latest) or from the [website](https://yomichi.netlify.app/)
 2. Install it and grant notification permission when prompted
 
 > Requires **Android 8.0+ (API 26)**
@@ -105,7 +111,7 @@ Yomichi is released under the **GNU General Public License v3.0**. See [LICENSE]
 
 Yomichi does not host, store, or distribute any content. The app functions as a search engine and aggregator: it crawls and displays content from third-party websites that are publicly accessible through any standard web browser. Yomichi has no affiliation with, and no control over, the content provided by these sources.
 
-Any legal concerns regarding content should be directed to the respective website operators and content hosts. In cases of copyright infringement, please contact the responsible parties or file hosts directly.
+Any legal concerns regarding content should be directed to the respective we operators and content hosts. In cases of copyright infringement, please contact the responsible parties or file hosts directly.
 
 This application is intended for personal and educational use only. Users are solely responsible for ensuring their use of the app complies with all applicable local, national, and international laws. Use Yomichi at your own risk.
 
@@ -117,6 +123,6 @@ By using this application, you acknowledge that the developers of Yomichi bear n
 
 ⭐ **Star the repo if you find Yomichi useful!**
 
-[Report Bug](../../issues) · [Request Feature](../../issues)
+[Website](https://yomichi.netlify.app/) · [Report Bug](../../issues) · [Request Feature](../../issues)
 
 </div>
