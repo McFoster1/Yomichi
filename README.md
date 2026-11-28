@@ -88,17 +88,6 @@ Yomichi is a fork of [Novery](https://github.com/1Finn2me/Novery) by 1Finn2me, c
 
 > Requires **Android 8.0+ (API 26)**
 
-### Build from Source
-Releases are built by GitHub Actions: open the **Actions** tab, choose **Build and release Yomichi**, press **Run workflow**, and enter a version number. The signed APK is published on the Releases page.
-
-To build locally:
-```bash
-git clone https://github.com/McFoster1/Yomichi.git
-cd Yomichi
-./gradlew assembleDebug
-```
-Requires **JDK 17** and **Kotlin 2.0.21**.
-
 ---
 
 ## 🙏 Credits
